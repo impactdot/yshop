@@ -15,8 +15,7 @@ app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
-    days=365
-)
+    days=365)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 api.add_resource(news_resources.NewsListResource, '/api/v2/news')
@@ -42,8 +41,11 @@ def index():
     res = make_response(render_template("index.html", news=news))
     res.set_cookie("visits_count", '1', max_age=60 * 60 * 24 * 365 * 2)
     if current_user.is_authenticated:
-        news = db_sess.query(News).filter(
-            (News.user == current_user) | (News.is_private != True))
+        if current_user.getadmin():
+            news = db_sess.query(News)
+        else:
+            news = db_sess.query(News).filter(
+                (News.user == current_user) | (News.is_private != True))
     else:
         news = db_sess.query(News).filter(News.is_private != True)
     return render_template("index.html", news=news)
@@ -103,9 +105,12 @@ def edit_news(id):
     form = NewsForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
-        news = db_sess.query(News).filter(News.id == id,
-                                          News.user == current_user
-                                          ).first()
+        if current_user.getadmin():
+            news = db_sess.query(News).filter(News.id == id).first()
+        else:
+            news = db_sess.query(News).filter(News.id == id,
+                                              News.user == current_user
+                                              ).first()
         if news:
             form.title.data = news.title
             form.content.data = news.content
@@ -114,7 +119,10 @@ def edit_news(id):
             abort(404)
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        news = db_sess.query(News).filter(News.id == id,
+        if current_user.getadmin():
+            news = db_sess.query(News).filter(News.id == id).first()
+        else:
+            news = db_sess.query(News).filter(News.id == id,
                                           News.user == current_user
                                           ).first()
         if news:
@@ -127,17 +135,18 @@ def edit_news(id):
             abort(404)
     return render_template('news.html',
                            title='Редактирование новости',
-                           form=form
-                           )
+                           form=form)
 
 
 @app.route('/news_delete/<int:id>', methods=['GET', 'POST'])
 @login_required
 def news_delete(id):
     db_sess = db_session.create_session()
-    news = db_sess.query(News).filter(News.id == id,
-                                      News.user == current_user
-                                      ).first()
+    if current_user.getadmin():
+        news = db_sess.query(News).filter(News.id == id).first()
+    else:
+        news = db_sess.query(News).filter(News.id == id,
+                                          News.user == current_user).first()
     if news:
         db_sess.delete(news)
         db_sess.commit()
@@ -163,7 +172,7 @@ def cookie_test():
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def reqister():
+def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:

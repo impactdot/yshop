@@ -13,7 +13,7 @@
     </div>
     <div>
         Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
-        {% if current_user.is_authenticated and current_user == item.user %}
+        {% if current_user.is_authenticated and (current_user == item.user  or current_user.getadmin())%}
     <div>
         <a href="/news/{{ item.id }}" class="btn btn-warning">
             Изменить

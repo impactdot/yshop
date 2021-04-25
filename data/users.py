@@ -21,10 +21,14 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
+    admin = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     news = orm.relation("News", back_populates='user')
 
     def __repr__(self):
         return f'name - {self.name}, email - {self.email}'
+
+    def getadmin(self):
+        return self.admin
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
