@@ -5,7 +5,7 @@ from sqlalchemy import orm
 from sqlalchemy_serializer import SerializerMixin
 from .db_session import SqlAlchemyBase
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField
+from wtforms import StringField, TextAreaField, IntegerField
 from wtforms import BooleanField, SubmitField
 from wtforms.validators import DataRequired
 
@@ -24,6 +24,7 @@ class News(SqlAlchemyBase, UserMixin, SerializerMixin):
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
     is_published = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
+    price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     categories = orm.relation("Category",
                               secondary="association",
                               backref="news")
@@ -36,5 +37,6 @@ class News(SqlAlchemyBase, UserMixin, SerializerMixin):
 class NewsForm(FlaskForm):
     title = StringField('Заголовок', validators=[DataRequired()])
     content = TextAreaField("Содержание")
+    price = IntegerField("Цена")
     is_private = BooleanField("Личное")
     submit = SubmitField('Применить')

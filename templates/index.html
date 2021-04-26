@@ -12,7 +12,9 @@
         {{item.content}}
     </div>
     <div>
-        Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
+        <b>Автор</b> - {{item.user.name}}<br>
+        <b>Дата написания</b> - {{item.created_date}}<br>
+        <b>Цена</b> - {{item.price}}
         {% if current_user.is_authenticated and (current_user == item.user  or current_user.getadmin())%}
     <div>
         <a href="/news/{{ item.id }}" class="btn btn-warning">
