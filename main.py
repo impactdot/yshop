@@ -1,4 +1,4 @@
-from flask import Flask, render_template, make_response, jsonify, request, session
+from flask import Flask, render_template, make_response, jsonify, request, session, url_for, flash
 import json
 from data import db_session, news_resources
 from werkzeug.utils import redirect
@@ -12,7 +12,6 @@ from forms.user import RegisterForm
 from loginform import LoginForm
 from flask_restful import reqparse, abort, Api, Resource
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -228,6 +227,15 @@ def user_page():
 @app.route('/user_edit', methods=['GET', 'POST'])
 def user_edit():
     forma = EditForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == current_user.id
+                                          ).first()
+        if user:
+            forma.name.data = user.name
+            forma.about.data = user.about
+        else:
+            abort(404)
     if forma.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.id == current_user.id
@@ -253,7 +261,7 @@ def user_edit():
             return redirect('/user')
         else:
             abort(404)
-    return render_template('user_edit.html', title="пизда", form=forma)
+    return render_template('user_edit.html', title="edit", form=forma)
 
 
 @app.errorhandler(404)
