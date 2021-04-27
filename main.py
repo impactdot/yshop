@@ -6,6 +6,8 @@ from data import db_session, news_api
 from data.news import News, NewsForm
 from data.users import User
 import datetime
+from werkzeug.security import check_password_hash, generate_password_hash
+from forms.edit import EditForm
 from forms.user import RegisterForm
 from loginform import LoginForm
 from flask_restful import reqparse, abort, Api, Resource
@@ -177,11 +179,28 @@ def cookie_test():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
+    emails = ["gmail", "hotmail", "mail", "yandex", "yahoo"]
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Пароли не совпадают")
+        if not any(email_service in form.email.data for email_service in emails):
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Invalid email")
+        if form.password.data != form.password_again.data:
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Пароли не совпадают")
+        if len(form.password.data) < 8:
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Пароль должен иметь не меньше 8 символов")
+        if form.password.data.isdigit() or form.password.data.isalpha():
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Пароль должен содержать буквы и цифры")
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
             return render_template('register.html', title='Регистрация',
@@ -197,6 +216,44 @@ def register():
         db_sess.commit()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
+
+
+@app.route('/user')
+def user_page():
+    db_sess = db_session.create_session()
+    news = db_sess.query(News)
+    return render_template('user.html', news=news)
+
+
+@app.route('/user_edit', methods=['GET', 'POST'])
+def user_edit():
+    forma = EditForm()
+    if forma.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == current_user.id
+                                          ).first()
+        if user:
+            if forma.password.data != forma.password_again.data:
+                return render_template('user_edit.html', title='Регистрация',
+                                       form=forma,
+                                       message="Пароли не совпадают")
+
+            if len(forma.password.data) < 8:
+                return render_template('user_edit.html', title='Регистрация',
+                                       form=forma,
+                                       message="Пароль должен иметь не меньше 8 символов")
+            if forma.password.data.isdigit() or forma.password.data.isalpha():
+                return render_template('user_edit.html', title='Регистрация',
+                                       form=forma,
+                                       message="Пароль должен содержать буквы и цифры")
+            user.set_password(forma.password.data)
+            user.name = forma.name.data
+            user.about = forma.about.data
+            db_sess.commit()
+            return redirect('/user')
+        else:
+            abort(404)
+    return render_template('user_edit.html', title="пизда", form=forma)
 
 
 @app.errorhandler(404)

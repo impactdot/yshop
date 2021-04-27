@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Страница Пользователя - {{current_user}}</h1>
+<a class="btn btn-primary" href="/user_edit"><h5>Редактировать страницу</h5> </a>
+<p><big><b>Email: </b></big>{{current_user.email}}</p>
+<p><big><b>О Себе: </b></big>{{current_user.about}}</p>
+<p><big><b>Дата Регистрации: </b></big>{{current_user.created_date}}</p>
+{% for item in news%}
+
+<div class="col-md6 border rounded">
+    {% if current_user == item.user%}
+        <h2>{{item.title}}</h2>
+        <div>
+            {{item.content}}
+        </div>
+        <div>
+            <b>Автор</b> - {{item.user.name}}<br>
+            <b>Дата написания</b> - {{item.created_date}}<br>
+            <b>Цена</b> - {{item.price}}
+    <div>
+        <a href="/news/{{ item.id }}" class="btn btn-warning">
+            Изменить
+        </a>
+        <a href="/news_delete/{{ item.id }}" class="btn btn-danger">
+            Удалить
+        </a>
+    </div>
+    {% endif %}
+        </div>
+</div>
+{% endfor %}
+{% endblock %}
