@@ -20,7 +20,7 @@ class News(SqlAlchemyBase, UserMixin, SerializerMixin):
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
     is_private = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
-
+    is_used = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
     is_published = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
@@ -38,5 +38,6 @@ class NewsForm(FlaskForm):
     title = StringField('Заголовок', validators=[DataRequired()])
     content = TextAreaField("Содержание")
     price = IntegerField("Цена")
+    is_used = BooleanField("Использованное")
     is_private = BooleanField("Личное")
     submit = SubmitField('Применить')

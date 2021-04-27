@@ -51,7 +51,7 @@ def create_news():
         title=request.json['title'],
         content=request.json['content'],
         user_id=request.json['user_id'],
-        is_private=request.json['is_private']
+        is_used=request.json['is_used']
     )
     db_sess.add(news)
     db_sess.commit()

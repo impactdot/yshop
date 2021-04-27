@@ -14,7 +14,13 @@
     <div>
         <b>Автор</b> - {{item.user.name}}<br>
         <b>Дата написания</b> - {{item.created_date}}<br>
-        <b>Цена</b> - {{item.price}}
+        <b>Цена</b> - {{item.price}}<br>
+        {% if item.is_used == True%}
+        <b>Использованный</b> - Да
+        {% endif %}
+        {% if item.is_used == False%}
+        <b>Использованный</b> - Нет
+        {% endif %}
         {% if current_user.is_authenticated and (current_user == item.user  or current_user.getadmin())%}
     <div>
         <a href="/news/{{ item.id }}" class="btn btn-warning">
