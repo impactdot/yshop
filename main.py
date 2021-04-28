@@ -227,6 +227,11 @@ def user_page():
     return render_template('user.html', news=news)
 
 
+@app.route('/liked', methods=['GET', 'POST'])
+def liked():
+    return render_template('liked.html', title="Избранное", )
+
+
 @app.route('/user_edit', methods=['GET', 'POST'])
 def user_edit():
     forma = EditForm()
@@ -264,7 +269,7 @@ def user_edit():
             return redirect('/user')
         else:
             abort(404)
-    return render_template('user_edit.html', title="edit", form=forma)
+    return render_template('user_edit.html', title="Редактирование профиля", form=forma)
 
 
 @app.errorhandler(404)

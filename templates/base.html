@@ -15,6 +15,7 @@
         <a class="navbar-brand" href="/"><img src="../static/img/yshoplogo.png" alt="yshoplogo" width="100" height="40"></a>
         {% if current_user.is_authenticated %}
             <p>
+                <a class="btn btn-secondary" href="/liked">Избранное</a>
                 <a class="navbar-brand" href="/user">{{ current_user.name }}</a>
                 <a class="btn btn-primary" href="/logout">Выйти</a>
             </p>
