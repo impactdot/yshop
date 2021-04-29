@@ -1,5 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1></h1>
+<h1>О Записи</h1>
+
+{% for item in news %}
+<div class="col-md6 border rounded">
+    <h2>{{item.title}}</h2>
+    <h4>{{item.content}}</h4>
+    <div>
+        <b>Автор</b> - {{item.user.name}}<br>
+        <b>Дата написания</b> - {{item.created_date}}<br>
+        <b>Цена</b> - {{item.price}}<br>
+        {% if item.is_used == True%}
+            <b>Использованный</b> - Да
+        {% endif %}
+        {% if item.is_used == False%}
+            <b>Использованный</b> - Нет
+        {% endif %}
+        {% if current_user.is_authenticated and (current_user == item.user  or current_user.getadmin())%}
+            <div>
+                <a href="/news/{{ item.id }}" class="btn btn-warning">
+                    Изменить
+                </a>
+                <a href="/news_delete/{{ item.id }}" class="btn btn-danger">
+                    Удалить
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
 {% endblock %}

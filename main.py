@@ -102,6 +102,13 @@ def add_news():
                            form=form)
 
 
+@app.route('/news_view/<int:id>', methods=['GET'])
+def news_view(id):
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.id == id).first()
+    return render_template('news_view.html', title='Подробнее о записи', news=news)
+
+
 @app.route('/news/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_news(id):
@@ -211,15 +218,10 @@ def user_page():
     return render_template('user.html', news=news)
 
 
-@app.route('/liked', methods=['GET', 'POST'])
+@app.route('/liked', methods=['GET'])
 def liked():
     # добавить get post???
     return render_template('liked.html', title="Избранное", )
-
-
-@app.route('/news_view/<int:id>', methods=['GET', 'POST'])
-def news_view():
-    return render_template('news_view.html', title='Запись')
 
 
 @app.route('/user_edit', methods=['GET', 'POST'])
