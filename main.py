@@ -40,9 +40,6 @@ def load_user(user_id):
 @app.route("/")
 def index():
     db_sess = db_session.create_session()
-    news = db_sess.query(News).filter(News.is_private != True)
-    # res = make_response(render_template("index.html", news=news))
-    # res.set_cookie("visits_count", '1', max_age=60 * 60 * 24 * 365 * 2)
     if current_user.is_authenticated:
         if current_user.getadmin():
             news = db_sess.query(News)
@@ -107,7 +104,7 @@ def add_news():
 @app.route('/news_view/<int:id>', methods=['GET'])
 def news_view(id):
     db_sess = db_session.create_session()
-    news = db_sess.query(News).filter(News.id == id).first()
+    news = db_sess.query(News).filter(News.id == id)
     return render_template('news_view.html', title='Подробнее о записи', news=news)
 
 
