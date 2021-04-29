@@ -9,7 +9,10 @@
     <h4>{{item.content}}</h4>
     <div>
         <b>Автор</b> - {{item.user.name}}<br>
-        <b>Дата написания</b> - {{item.created_date}}<br>
+        {% set x = item.created_date %}
+        {% set y = x.replace(microsecond=0) %}
+        <!-- конец форматирования -->
+        <b>Дата написания</b> - {{y}}<br>
         <b>Цена</b> - {{item.price}}<br>
         {% if item.is_used == True%}
             <b>Использованный</b> - Да

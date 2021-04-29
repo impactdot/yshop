@@ -1,16 +1,14 @@
-from flask import Flask, render_template, make_response, jsonify, request, session, url_for, flash
-import json
-from data import db_session, news_resources
+from flask import Flask, render_template, make_response, jsonify, request, session
 from werkzeug.utils import redirect
-from data import db_session, news_api
+
+from data import db_session
 from data.news import News, NewsForm
 from data.users import User
 import datetime
-from werkzeug.security import check_password_hash, generate_password_hash
 from forms.edit import EditForm
 from forms.user import RegisterForm
 from loginform import LoginForm
-from flask_restful import reqparse, abort, Api, Resource
+from flask_restful import abort, Api
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 app = Flask(__name__)
@@ -20,14 +18,11 @@ app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-api.add_resource(news_resources.NewsListResource, '/api/v2/news')
-api.add_resource(news_resources.NewsResource, '/api/v2/news/<int:news_id>')
 counter = False
 
 
 def main():
     db_session.global_init("db/blogs.db")
-    app.register_blueprint(news_api.blueprint)
     app.run()
 
 
@@ -40,14 +35,7 @@ def load_user(user_id):
 @app.route("/")
 def index():
     db_sess = db_session.create_session()
-    if current_user.is_authenticated:
-        if current_user.getadmin():
-            news = db_sess.query(News)
-        else:
-            news = db_sess.query(News).filter(
-                (News.user == current_user) | (News.is_private != True))
-    else:
-        news = db_sess.query(News).filter(News.is_private != True)
+    news = db_sess.query(News)
     return render_template("index.html", news=news, counter="Удалить")
 
 
@@ -66,14 +54,6 @@ def login():
     return render_template('login.html', title='Авторизация', form=form)
 
 
-@app.route("/session_test")
-def session_test():
-    visits_count = session.get('visits_count', 0)
-    session['visits_count'] = visits_count + 1
-    return make_response(
-        f"Вы пришли на эту страницу {visits_count + 1} раз")
-
-
 @app.route('/logout')
 @login_required
 def logout():
@@ -90,7 +70,6 @@ def add_news():
         news = News()
         news.title = form.title.data
         news.content = form.content.data
-        news.is_private = form.is_private.data
         news.price = form.price.data
         news.is_used = form.is_used.data
         current_user.news.append(news)
@@ -123,7 +102,6 @@ def edit_news(id):
         if news:
             form.title.data = news.title
             form.content.data = news.content
-            form.is_private.data = news.is_private
             form.price.data = news.price
             form.is_used.data = news.is_used
         else:
@@ -139,7 +117,6 @@ def edit_news(id):
         if news:
             news.title = form.title.data
             news.content = form.content.data
-            news.is_private = form.is_private.data
             news.price = form.price.data
             news.is_used = form.is_used.data
             db_sess.commit()
