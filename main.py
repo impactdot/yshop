@@ -39,8 +39,8 @@ def load_user(user_id):
 def index():
     db_sess = db_session.create_session()
     news = db_sess.query(News).filter(News.is_private != True)
-    res = make_response(render_template("index.html", news=news))
-    res.set_cookie("visits_count", '1', max_age=60 * 60 * 24 * 365 * 2)
+    # res = make_response(render_template("index.html", news=news))
+    # res.set_cookie("visits_count", '1', max_age=60 * 60 * 24 * 365 * 2)
     if current_user.is_authenticated:
         if current_user.getadmin():
             news = db_sess.query(News)
@@ -162,22 +162,6 @@ def news_delete(id):
     return redirect('/')
 
 
-@app.route("/cookie_test")
-def cookie_test():
-    visits_count = int(request.cookies.get("visits_count", 0))
-    if visits_count:
-        res = make_response(
-            f"Вы пришли на эту страницу {visits_count + 1} раз")
-        res.set_cookie("visits_count", str(visits_count + 1),
-                       max_age=60 * 60 * 24 * 365 * 2)
-    else:
-        res = make_response(
-            "Вы пришли на эту страницу в первый раз за последние 2 года")
-        res.set_cookie("visits_count", '1',
-                       max_age=60 * 60 * 24 * 365 * 2)
-    return res
-
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
@@ -229,7 +213,13 @@ def user_page():
 
 @app.route('/liked', methods=['GET', 'POST'])
 def liked():
+    # добавить get post???
     return render_template('liked.html', title="Избранное", )
+
+
+@app.route('/news_view/<int:id>', methods=['GET', 'POST'])
+def news_view():
+    return render_template('news_view.html', title='Запись')
 
 
 @app.route('/user_edit', methods=['GET', 'POST'])
