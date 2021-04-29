@@ -12,6 +12,7 @@ from forms.user import RegisterForm
 from loginform import LoginForm
 from flask_restful import reqparse, abort, Api, Resource
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -21,6 +22,7 @@ api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 api.add_resource(news_resources.NewsListResource, '/api/v2/news')
 api.add_resource(news_resources.NewsResource, '/api/v2/news/<int:news_id>')
+counter = False
 
 
 def main():
@@ -49,7 +51,7 @@ def index():
                 (News.user == current_user) | (News.is_private != True))
     else:
         news = db_sess.query(News).filter(News.is_private != True)
-    return render_template("index.html", news=news)
+    return render_template("index.html", news=news, counter="Удалить")
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -135,8 +137,8 @@ def edit_news(id):
             news = db_sess.query(News).filter(News.id == id).first()
         else:
             news = db_sess.query(News).filter(News.id == id,
-                                          News.user == current_user
-                                          ).first()
+                                              News.user == current_user
+                                              ).first()
         if news:
             news.title = form.title.data
             news.content = form.content.data
@@ -222,6 +224,19 @@ def user_page():
 def liked():
     # добавить get post???
     return render_template('liked.html', title="Избранное", )
+
+
+@app.route('/filter_new')
+def filter_new():
+    global counter
+    if counter is False:
+        db_sess = db_session.create_session()
+        news = db_sess.query(News).filter((News.is_used == False))
+        counter = True
+        return render_template('index.html', news=news, counter="Добавить")
+    else:
+        counter = False
+        return redirect("/")
 
 
 @app.route('/user_edit', methods=['GET', 'POST'])
