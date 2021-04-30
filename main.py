@@ -5,6 +5,7 @@ from data import db_session
 from data.news import News, NewsForm
 from data.users import User
 import datetime
+from forms.search import SearchForm
 from forms.edit import EditForm
 from forms.user import RegisterForm
 from loginform import LoginForm
@@ -36,7 +37,9 @@ def load_user(user_id):
 def index():
     db_sess = db_session.create_session()
     news = db_sess.query(News)
-    return render_template("index.html", news=news, counter="Удалить")
+    form = SearchForm()
+    if form.validate_on_submit():
+        return render_template("index.html", news=news, counter="Удалить", form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -198,6 +201,13 @@ def user_page():
 def liked():
     # добавить get post???
     return render_template('liked.html', title="Избранное", )
+
+
+@app.route('/liked_success/<int:id>', methods=['GET', 'POST'])
+def liked_success(id):
+    # добавить эту запись в избранное через базу данных
+    # if (в базе данных есть айдишник этой записи, то вместо "Добавить в избранное, добавить удалить из избранного")
+    return render_template('liked_success.html', title='Добавлено в избранное', liked_message="")
 
 
 @app.route('/filter_new')

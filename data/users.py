@@ -22,6 +22,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
                                      default=datetime.datetime.now)
     admin = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     news = orm.relation("News", back_populates='user')
+    liked_list = sqlalchemy.Column(sqlalchemy.String, nullable=True)
 
     def __repr__(self):
         return f'{self.name}'
