@@ -1,14 +1,13 @@
-from flask import Flask, render_template, make_response, jsonify, request, session
+from flask import Flask, render_template, make_response, jsonify, request
 from werkzeug.utils import redirect
-
 from data import db_session
 from data.news import News, NewsForm
 from data.users import User
 import datetime
-from forms.search import SearchForm
+from forms.search import SearchForm, PriceForm
 from forms.edit import EditForm
 from forms.user import RegisterForm
-from loginform import LoginForm
+from forms.loginform import LoginForm
 from flask_restful import abort, Api
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
@@ -33,13 +32,26 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def index():
+    form = SearchForm()
+    price = PriceForm()
     db_sess = db_session.create_session()
     news = db_sess.query(News)
-    form = SearchForm()
-    if form.validate_on_submit():
-        return render_template("index.html", news=news, counter="Удалить", form=form)
+    if form.submit.data and form.validate():
+        print("dad")
+        db_sess = db_session.create_session()
+        tag = form.search_string.data
+        search = "%{}%".format(tag)
+        news = db_sess.query(News).filter(News.title.like(search))
+    if price.submit1.data and price.validate():
+        if price.min_price.data > price.max_price.data:
+            return render_template("index.html", message="Минимальная цена не может быть больше максимальной",
+                                   news=news, counter="Удалить", form=form, price=price)
+        else:
+            db_sess = db_session.create_session()
+            news = db_sess.query(News).filter(News.price > price.min_price.data, News.price < price.max_price.data)
+    return render_template("index.html", news=news, counter="Удалить", form=form, price=price)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -210,14 +222,16 @@ def liked_success(id):
     return render_template('liked_success.html', title='Добавлено в избранное', liked_message="")
 
 
-@app.route('/filter_new')
+@app.route('/filter_new', methods=['GET', 'POST'])
 def filter_new():
     global counter
+    form = SearchForm()
+    price = PriceForm()
     if counter is False:
         db_sess = db_session.create_session()
         news = db_sess.query(News).filter((News.is_used == False))
         counter = True
-        return render_template('index.html', news=news, counter="Добавить")
+        return render_template('index.html', news=news, counter="Добавить", form=form, price=price)
     else:
         counter = False
         return redirect("/")
