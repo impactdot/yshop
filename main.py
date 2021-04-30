@@ -14,8 +14,6 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
-app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
-    days=365)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 counter = False
@@ -39,7 +37,6 @@ def index():
     db_sess = db_session.create_session()
     news = db_sess.query(News)
     if form.submit.data and form.validate():
-        print("dad")
         db_sess = db_session.create_session()
         tag = form.search_string.data
         search = "%{}%".format(tag)
@@ -86,6 +83,7 @@ def add_news():
         news.title = form.title.data
         news.content = form.content.data
         news.price = form.price.data
+        news.contact = form.contact.data
         news.is_used = form.is_used.data
         current_user.news.append(news)
         db_sess.merge(current_user)
@@ -118,6 +116,7 @@ def edit_news(id):
             form.title.data = news.title
             form.content.data = news.content
             form.price.data = news.price
+            form.contact.data = news.contact
             form.is_used.data = news.is_used
         else:
             abort(404)
@@ -133,6 +132,7 @@ def edit_news(id):
             news.title = form.title.data
             news.content = form.content.data
             news.price = form.price.data
+            news.contact = form.contact.data
             news.is_used = form.is_used.data
             db_sess.commit()
             return redirect('/')

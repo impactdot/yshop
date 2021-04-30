@@ -31,6 +31,15 @@
             </p>
         {% endfor %}
     </p>
+    <p>
+        {{ form.contact.label }}<br>
+        {{ form.contact(class="form-control") }}<br>
+        {% for error in form.contact.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
     <p>{{ form.is_used() }} {{ form.is_used.label }}</p>
   <br><br>
 <!--  <input type="submit" value="Submit">-->
